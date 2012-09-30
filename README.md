@@ -39,6 +39,5 @@ Publications
 * Frequent Itemset Based Hierarchical Document Clustering Using Wikipedia as External Knowledge http://rd.springer.com/chapter/10.1007/978-3-642-15390-7_2
 * Exploiting Wikipedia as External Knowledge for Document Clustering (Drexel, Mizzou) http://140.122.184.128/presentation/09-08-11/Exploiting%20Wikipedia%20as%20External%20Knowledge%20for%20Document%20Clustering.pdf
 * Browsing within Lecture Videos Based on the Chain Index of Speech Transcription (Potsdam) http://ieeexplore.ieee.org/xpl/articleDetails.jsp?reload=true&tp=&arnumber=4731229&contentType=Journals+%26+Magazines&punumber%3D4620076
-* 
 * Information Retrieval (Stanford) http://nlp.stanford.edu/IR-book/pdf/irbookonlinereading.pdf
 
