@@ -34,9 +34,9 @@ object Demo {
     // TODO: use df
     // TODO: use 0.0001
     val classifier = cluster(data,
-      N = data(0).length, // TODO: there shoudl be a way to infer this
-      featureExtractor = (obj: IndexedSeq[Double]) => obj.toList, // TODO: IndexedSeq should be good enough
-      constructor = (features: List[Double]) => features.toIndexedSeq, // TODO: IndexedSeq should be good enough
+      N = data(0).length, // TODO: there should be a way to infer this
+      featureExtractor = (obj: Seq[Double]) => obj,
+      constructor = (features: Seq[Double]) => features,
       K = k,
       iterations = numIterations)
 
