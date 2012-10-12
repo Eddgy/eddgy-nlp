@@ -10,6 +10,7 @@ Useful Datasets
 * WordNet (Princeton) Free lexicon with synonyms, hyponyms, hyperonyms, and meronyms http://wordnet.princeton.edu/
 * N-Grams (Google) http://books.google.com/ngrams/datasets
 * Wikipedia tarball: http://blog.wikimedia.org/2012/04/09/download-the-text-of-the-entire-english-wikipedia/ http://dumps.wikimedia.org/backup-index.html
+* Cross-Wikis (Stanford): http://www-nlp.stanford.edu/pubs/crosswikis-data.tar.bz2/
 
 Java/Scala Packages
 -------------------
