@@ -7,13 +7,12 @@ import axle.ml.KMeans._
 
 object Demo {
 
-  val df = EuclideanDistance // or CosineDistance or ManhattanDistance
   val k = 4
   val numIterations = 100
 
-  val points = articles.map(article => Point(fullFeatures(article))) // or simpleFeatures
-
   def withoutAxle(): Unit = {
+    val df = EuclideanDistance // or CosineDistance or ManhattanDistance
+    val points = articles.map(article => Point(fullFeatures(article))) // or simpleFeatures
     val pointTransformer = new PcaTransformer(points, 0.95) // or IdentityTransformer or ZscoreTransformer(points)
     val transformedPoints = pointTransformer(points)
     val km = new Kmeans(transformedPoints, df, 0.0001, numIterations)
@@ -34,7 +33,7 @@ object Demo {
 
     val classifier = cluster(articles, numFullFeatures,
       (article: FederalistArticle) => fullFeatures(article),
-      (features: Seq[Double]) => null.asInstanceOf[FederalistArticle],
+      (features: Seq[Double]) => null.asInstanceOf[FederalistArticle], // TODO
       k, numIterations)
 
     val confusionMatrix = classifier.confusionMatrix(articles, (article: FederalistArticle) => article.author)
