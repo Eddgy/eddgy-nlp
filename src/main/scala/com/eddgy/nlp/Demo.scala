@@ -1,16 +1,17 @@
 package com.eddgy.nlp
 
 import com.eddgy.nlp.transformer.PcaTransformer
+import data.FederalistPapers._
+import axle.matrix.JblasMatrixFactory._
+import axle.ml.KMeans._
 
 object Demo {
-
-  import data.FederalistPapers._
 
   val df = EuclideanDistance // or CosineDistance or ManhattanDistance
   val k = 4
   val numIterations = 100
 
-  val points = fullPoints(articles) // or simplePoints(articles)
+  val points = articles.map(article => Point(fullFeatures(article))) // or simpleFeatures
 
   def withoutAxle(): Unit = {
     val pointTransformer = new PcaTransformer(points, 0.95) // or IdentityTransformer or ZscoreTransformer(points)
@@ -23,27 +24,20 @@ object Demo {
 
   def withAxle(): Unit = {
 
-    import axle.ml.KMeans._
-
-    // TODO:
-    val pointTransformer = new PcaTransformer(points, 0.95) // or IdentityTransformer or ZscoreTransformer(points)
-    val transformedPoints = pointTransformer(points)
-
-    val data = transformedPoints.map(_.coord)
-
     // TODO: use df
     // TODO: use 0.0001
-    val classifier = cluster(data,
-      N = data(0).length, // TODO: there should be a way to infer this
-      featureExtractor = (obj: Seq[Double]) => obj,
-      constructor = (features: Seq[Double]) => features,
-      K = k,
-      iterations = numIterations)
+    // TODO: numFeatures should be inferred
+    // TODO: use kmeans internal pca transformation
+    // val pointTransformer = new PcaTransformer(points, 0.95) // or IdentityTransformer or ZscoreTransformer(points)
+    // val transformedPoints = pointTransformer(points)
+    // val data = transformedPoints.map(_.coord)
 
-    val predictions = data.map(classifier.classify(_))
+    val classifier = cluster(articles, numFullFeatures,
+      (article: FederalistArticle) => fullFeatures(article),
+      (features: Seq[Double]) => null.asInstanceOf[FederalistArticle],
+      k, numIterations)
 
-    // TODO:
-    val confusionMatrix = ClusterConfusionMatrix(articles.map(_.author), k, predictions)
+    val confusionMatrix = classifier.confusionMatrix(articles, (article: FederalistArticle) => article.author)
 
   }
 
