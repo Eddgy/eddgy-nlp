@@ -27,8 +27,8 @@ object FederalistPapers {
   val BookRE = """FEDERALIST\.? No. \d+\s+""".r
   val ArticleRE = """(?s)(.*)\n+([A-Z ]+)(\n){3,}To ([\w ]+)[\:\.][\s\n]+(.*)""".r
 
-  def extractArticles(): IndexedSeq[FederalistArticle] = {
-    val articles = (BookRE.split(io.Source.fromFile(filename).mkString("")).tail)
+  def extractArticles(): IndexedSeq[FederalistArticle] =
+    (BookRE.split(io.Source.fromFile(filename).mkString("")).tail)
       .zipWithIndex.map({
         case (article, i) => {
           val id = (i + 1).toString
@@ -46,23 +46,13 @@ object FederalistPapers {
       .flatMap(x => x)
       .filter(article => article.id != "71")
 
-    //    for (article <- articles) {
-    //      println(article.id + ": " + article.author)
-    //      println(article.text.take(40))
-    //      println
-    //    }
-
-    articles
+  def simpleFeatures(article: FederalistArticle) = {
+    val tokens = SimpleTokenizer(article.text)
+    val theCount = tokens.filter(_ == "the").length
+    val peopleCount = tokens.filter(_ == "people").length
+    val whichCount = tokens.filter(_ == "which").length
+    Vector(theCount, peopleCount, whichCount)
   }
-
-  def simplePoints(articles: IndexedSeq[FederalistArticle]): IndexedSeq[Point] =
-    articles.map(article => {
-      val tokens = SimpleTokenizer(article.text)
-      val theCount = tokens.filter(_ == "the").length
-      val peopleCount = tokens.filter(_ == "people").length
-      val whichCount = tokens.filter(_ == "which").length
-      Point(Vector(theCount, peopleCount, whichCount))
-    })
 
   def countem[K](xs: Seq[K]): Map[K, Int] = xs
     .map((_, 1))
@@ -70,52 +60,50 @@ object FederalistPapers {
     .map({ case (k, vs) => (k, vs.map(_._2).sum) })
     .withDefaultValue(0)
 
-  def fullPoints(articles: IndexedSeq[FederalistArticle]): IndexedSeq[Point] = {
+  val wordCutoff = 5
 
-    // TODO:
-    // * relative frequencies vs counts
-    // * incorporate document frequencies (tf-idf)
-    // * type/token ratio
-    // * capitalization patterns
-    // * average sentence length
+  val topWordCounts = articles
+    .map(article => countem(SimpleTokenizer(article.text)))
+    .reduce(_ |+| _)
+    .toList.sortBy(_._2).reverse
+    .filter(_._2 > wordCutoff)
+  // .take(200)
 
-    val wordCutoff = 5
+  val topWords = topWordCounts.map(_._1)
 
-    val topWordCounts = articles
-      .map(article => countem(SimpleTokenizer(article.text)))
-      .reduce(_ |+| _)
-      .toList.sortBy(_._2).reverse
-      .filter(_._2 > wordCutoff)
-    // .take(200)
+  //    println("There are " + topWords.length + " unique words used more than " + wordCutoff + " time(s).")
+  //    println(topWordCounts.mkString(", "))
+  //    println
 
-    val topWords = topWordCounts.map(_._1)
-
-    //    println("There are " + topWords.length + " unique words used more than " + wordCutoff + " time(s).")
-    //    println(topWordCounts.mkString(", "))
-    //    println
-
-    val topBigramCounts = articles
-      .map(article => {
-        val tokens = SimpleTokenizer(article.text)
-        countem(tokens.zip(tokens.tail))
-      })
-      .reduce(_ |+| _)
-      .toList.sortBy(_._2).reverse
-      .filter(_._2 > 1)
-      .take(200)
-
-    val topBigrams = topBigramCounts.map(_._1)
-
-    //    println(topBigramCounts.mkString(", "))
-
-    articles.map(article => {
+  val topBigramCounts = articles
+    .map(article => {
       val tokens = SimpleTokenizer(article.text)
-      val wordCounts = countem(tokens)
-      val bigrams = tokens.zip(tokens.tail)
-      val bigramCounts = countem(bigrams)
-      val averageWordLength = tokens.map(_.length).sum / tokens.length.toDouble
-      Point(topWords.map(wordCounts(_).toDouble).toIndexedSeq ++ Vector(averageWordLength))
+      countem(tokens.zip(tokens.tail))
     })
+    .reduce(_ |+| _)
+    .toList.sortBy(_._2).reverse
+    .filter(_._2 > 1)
+    .take(200)
+
+  val topBigrams = topBigramCounts.map(_._1)
+  //    println(topBigramCounts.mkString(", "))
+
+  // TODO:
+  // * relative frequencies vs counts
+  // * incorporate document frequencies (tf-idf)
+  // * type/token ratio
+  // * capitalization patterns
+  // * average sentence length
+
+  def fullFeatures(article: FederalistArticle) = {
+    val tokens = SimpleTokenizer(article.text)
+    val wordCounts = countem(tokens)
+    val bigrams = tokens.zip(tokens.tail)
+    val bigramCounts = countem(bigrams)
+    val averageWordLength = tokens.map(_.length).sum / tokens.length.toDouble
+    topWords.map(wordCounts(_).toDouble).toIndexedSeq ++ Vector(averageWordLength)
   }
+
+  lazy val numFullFeatures = topWords.length + 1
 
 }
