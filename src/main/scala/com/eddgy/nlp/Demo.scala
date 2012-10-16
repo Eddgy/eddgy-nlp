@@ -1,9 +1,6 @@
 package com.eddgy.nlp
 
-import com.eddgy.nlp.transformer.PcaTransformer
 import data.FederalistPapers._
-import axle.matrix.JblasMatrixFactory._
-import axle.ml.KMeans._
 
 object Demo {
 
@@ -11,6 +8,7 @@ object Demo {
   val numIterations = 100
 
   def withoutAxle(): Unit = {
+    import com.eddgy.nlp.transformer.PcaTransformer
     val df = EuclideanDistance // or CosineDistance or ManhattanDistance
     val points = articles.map(article => Point(fullFeatures(article))) // or simpleFeatures
     val pointTransformer = new PcaTransformer(points, 0.95) // or IdentityTransformer or ZscoreTransformer(points)
@@ -23,21 +21,20 @@ object Demo {
 
   def withAxle(): Unit = {
 
-    // TODO: use df
+    import axle.matrix.JblasMatrixFactory._
+    import axle.ml.KMeans._
+    import axle.ml.DistanceFunction._
+
     // TODO: use 0.0001
     // TODO: numFeatures should be inferred
-    // TODO: use kmeans internal pca transformation
-    // val pointTransformer = new PcaTransformer(points, 0.95) // or IdentityTransformer or ZscoreTransformer(points)
-    // val transformedPoints = pointTransformer(points)
-    // val data = transformedPoints.map(_.coord)
 
-    val classifier = cluster(articles, numFullFeatures,
-      (article: FederalistArticle) => fullFeatures(article),
-      (features: Seq[Double]) => null.asInstanceOf[FederalistArticle], // TODO
-      k, numIterations)
+    val distance = ManhattanDistanceFunction
+    val featureExtractor = (article: FederalistArticle) => fullFeatures(article)
+    val labelExtractor = (article: FederalistArticle) => article.author
+    val constructor = (features: Seq[Double]) => null.asInstanceOf[FederalistArticle] // TODO
 
-    val confusionMatrix = classifier.confusionMatrix(articles, (article: FederalistArticle) => article.author)
-
+    val classifier = cluster(articles, numFullFeatures, featureExtractor, constructor, distance, k, numIterations)
+    val confusionMatrix = classifier.confusionMatrix(articles, labelExtractor)
   }
 
 }
