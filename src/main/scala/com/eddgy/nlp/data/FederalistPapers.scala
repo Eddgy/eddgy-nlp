@@ -60,7 +60,7 @@ object FederalistPapers {
     .map({ case (k, vs) => (k, vs.map(_._2).sum) })
     .withDefaultValue(0)
 
-  val wordCutoff = 5
+  val wordCutoff = 20
 
   val topWordCounts = articles
     .map(article => countem(SimpleTokenizer(article.text)))
