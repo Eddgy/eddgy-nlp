@@ -18,7 +18,7 @@ case class Question[T](text: String, answer: T, wrongAnswers: Seq[T]) {
 case class Quiz(name: String, questions: Seq[Question[_]]) {
 
   override def toString(): String = {
-    name + "\n\n" + questions.zipWithIndex.map({ case (q, i) => i + ". " + q }).mkString("\n\n")
+    name + "\n\n" + questions.zipWithIndex.map({ case (q, i) => (i+1) + ". " + q }).mkString("\n\n")
   }
 
 }
