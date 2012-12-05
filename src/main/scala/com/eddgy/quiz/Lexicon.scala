@@ -1,8 +1,6 @@
 package com.eddgy.quiz
 
 import java.math.BigDecimal
-
-import axle._
 import util.Random.shuffle
 
 object Lexicon {
@@ -21,7 +19,16 @@ object Lexicon {
 
   val carsStream = Stream.continually(shuffle(cars)).flatten
 
-  val cityPairStream = Stream.continually(shuffle(cities(0).permutations(2).toList)).flatten.map(pair => (pair(0), pair(1)))
+  // TODO use axle to make this cities(0).permutations(2).toList.map(pair => (pair(0), pair(1)))
+  val neighborhood = cities(0)
+  val allCityPairs = (for {
+    fromCity <- neighborhood
+    toCity <- neighborhood
+  } yield {
+    (fromCity, toCity)
+  }).filter({ case (fromCity, toCity) => fromCity != toCity })
+
+  val cityPairStream = Stream.continually(shuffle(allCityPairs)).flatten
 
   // TODO: use metric units when in Europe
   def cityDistance(from: String, to: String): BigDecimal = new BigDecimal("390") // TODO
